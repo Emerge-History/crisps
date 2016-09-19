@@ -78,8 +78,8 @@ function createWall(width, height, x, y) {
     var wall, BodyDef = new b2BodyDef()
     wall = new b2BoxDef()
     wall.density = 0
-    wall.restitution = 0.1
-    wall.friction = 0.5
+    wall.restitution = 0.5
+    wall.friction = 0.2
     wall.extents.Set(width, height); // 定义矩形高、宽
     BodyDef.position.Set(x, y); // 设置物体的初始位置
     BodyDef.AddShape(wall)
@@ -91,7 +91,7 @@ function createReact(width, height, x, y) {
     var react, BodyDef = new b2BodyDef()
     react = new b2BoxDef()
     react.density = 0.1
-    react.restitution = 0.4
+    react.restitution = 0.2
     react.friction = 0.2
     react.extents.Set(width, height); // 定义矩形高、宽
     // BodyDef.linearVelocity.Set(Math.random() * 400 - 200, Math.random() * 400 - 200)// 随机初速度
@@ -121,18 +121,14 @@ function loop() {
     var time2 = new Date().getTime()
     // 手机左右倾斜 添加重力
     var dt = (time2 - time1) / 1000
-    world.m_gravity.x = pos * 2050
+    world.m_gravity.x = pos * 1050
     time1 = time2
-
     ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, sW, sH);
-
-    if (elements.length < 250) {
+    if (elements.length < 300) {
         create()
     }
-
-    var iterations = 5
-    var count = 0
+    var iterations = 2
     world.Step(dt, iterations)
     for (i = 0; i < bodies.length; i++) {
         var body = bodies[i]
@@ -143,7 +139,7 @@ function loop() {
         ctx.save();
         ctx.translate(left, top);
         ctx.rotate(rot);
-        ctx.drawImage(element.img, -45, -45, 90, 90);
+        ctx.drawImage(element.img, 0, 0, 90, 90, -45, -45, 90, 90);
         ctx.restore();
     }
     return requestAnimationFrame(loop);
