@@ -10,7 +10,7 @@ var sH = document.body.clientHeight
 var first = true
 
 init()
-speed(2000)
+speed(100)
 
 // 初始化
 function init () {
@@ -106,7 +106,7 @@ function createWall (width, height, x, y) {
   wall = new b2BoxDef()
   wall.density = 0
   wall.restitution = 0.1
-  wall.friction = 0
+  wall.friction = 0.5
   wall.extents.Set(width, height); // 定义矩形高、宽
   BodyDef.position.Set(x, y); // 设置物体的初始位置
   BodyDef.AddShape(wall)
@@ -117,12 +117,15 @@ function createWall (width, height, x, y) {
 function createReact (width, height, x, y) {
   var react, BodyDef = new b2BodyDef()
   react = new b2BoxDef()
-  react.density = 0.3
-  react.restitution = 0.1
-  react.friction = 0.5
+  react.density = 1
+  react.restitution = 0.5
+  react.friction = 0.1
   react.extents.Set(width, height); // 定义矩形高、宽
   // BodyDef.linearVelocity.Set(Math.random() * 400 - 200, Math.random() * 400 - 200)// 随机初速度
   BodyDef.position.Set(x, y); // 设置物体的初始位置
+  BodyDef.angularDamping = 0.01
+  BodyDef.angularVelocity = 1
+  console.log(BodyDef);
   BodyDef.AddShape(react)
   bodies.push(world.CreateBody(BodyDef))
 }
@@ -148,8 +151,8 @@ function reset () {
 
 // 创建div
 function create () {
-  var vW = 80
-  var vH = 60
+  var vW = 30
+  var vH = 30
   createReact(vW >> 1, vH >> 1, rd(vW >> 1, sW - vW), -80)
   var rdType = type[rd(0, type.length - 1)]
   var element = document.createElement('div')
@@ -189,7 +192,7 @@ function loop () {
       count++
     }
     if (count > 8) {
-      reset()
+      //reset()
       first = false
     }
     if (element.style.visibility != 'visible') {
