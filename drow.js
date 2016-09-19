@@ -25,7 +25,8 @@ function init () {
   createWall(0.1, sH, sW, 0) // 右
   createWall(sW, 0.1, 0, sH) // 下
   createWall(0.1, sH, 0, 0) // 左
-  setInterval(loop, 1000 / 40) // loop
+  // setInterval(loop, 1000 / 40) // loop
+  requestAnimationFrame(loop);
 }
 
 // 下落的速度
@@ -206,6 +207,7 @@ function loop () {
     element.style.OTransform = rotationStyle
     element.style.MsTransform = rotationStyle
   }
+  return requestAnimationFrame(loop);
 }
 
 // 随机
