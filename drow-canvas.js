@@ -139,7 +139,7 @@ function loop() {
         ctx.save();
         ctx.translate(left, top);
         ctx.rotate(rot);
-        ctx.drawImage(element.img, 0, 0, 90, 90, -45, -45, 90, 90);
+        ctx.drawImage(element.img, 0, 0, 90, 90, -45, -45, 90, 90); //<-- for performance reasons
         ctx.restore();
     }
     return requestAnimationFrame(loop);
