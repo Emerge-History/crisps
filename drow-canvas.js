@@ -2,14 +2,13 @@
 
 
 var canvas, world, ctx
-var elements = [], bodies = []
-
+var elements = [], bodies = [], floats = []
 var type = [
     document.getElementById("img1"),
     document.getElementById("img2")
 ]
 
-var logo = document.getElementById("logo")
+var logo = document.getElementById("imglogo")
 
 
 
@@ -137,7 +136,7 @@ function time(t, start, end, endless) {
     return norm
 }
 
-function drawRing(t) {
+function drawRing(t, dt) {
     //blow
     if (t >= 0 && t <= 2) {
         var deg = easeInOutCubic(time(t, 0, 2), 0, 2)
@@ -162,7 +161,6 @@ function drawRing(t) {
         ctx.arc(0, 0, 2 * 20 + 30, 0, 2 * Math.PI, false)
         ctx.stroke()
         ctx.restore()
-
     }
     if (t >= 0.2 && t <= 3) {
         for (var i = 0; i < 1; i += 1 / 40) {
@@ -179,6 +177,73 @@ function drawRing(t) {
             ctx.stroke()
             ctx.restore()
         }
+    }
+    if (t > 0) {
+        ctx.save()
+        ctx.translate(sW / 2, sH / 2)
+        for (var i = 0; i < 20; i++) {
+            var deg = easeInOutCubic(time(t, 2 + i / 10, 5 + i / 10), 0, 1)
+            var s = deg * 1200
+            ctx.beginPath()
+            ctx.fillStyle = i % 2 == 0 ? "#fff" : "rgb(255, 209, 31)"
+            ctx.arc(0, 0, s, 0, 2 * Math.PI, false)
+            ctx.fill()
+        }
+        ctx.restore()
+    }
+    if (t > 5) {
+        var deg = 1 - Math.sqrt(easeInOutCubic(time(t, 5, 7), 0, 1))
+        drawChips(dt * (1 + deg * 10))
+    }
+    if (t > 1.5) {
+        ctx.save()
+        var deg = easeInOutCubic(time(t, 2, 7), 0, 1)
+        var s = deg * deg * 200
+        ctx.translate(sW / 2 - s * 1.2 / 2, sH / 2 - s / 2)
+        ctx.drawImage(logo, 0, 0, s * 1.2, s)
+        ctx.restore()
+    }
+}
+
+var MAX_CHIPS = 50
+var MIN_INTERVAL = 100
+var lastChip = Date.now()
+function drawChips(dt) {
+    ctx.save()
+    //push & pop ops
+    var len = floats.length
+    //custom physics
+    if (len < MAX_CHIPS && Date.now() - lastChip > MIN_INTERVAL) {
+        lastChip = Date.now()
+        floats.push({
+            x: Math.random() * sW,
+            y: sH + 100,
+            a: 0,
+            va: 5 * (Math.random() - 0.5),
+            vx: 10 * (Math.random() - 0.5),
+            vy: -Math.random() * 50 - 50,
+            s: Math.random() * 100 + 30,
+            img: type[rd(0, type.length - 1)]
+        })
+    }
+
+    for (var i = 0; i < len; i++) {
+        var cur = floats.shift()
+        if (cur.x < -100 || cur.x > sW + 100 || cur.y < -100) {
+            //remove 
+            continue
+        }
+        cur.x += cur.vx * dt
+        cur.y += cur.vy * dt
+        cur.a += cur.va * dt
+        cur.a = (cur.a > Math.PI * 2) ? (cur.a - Math.PI * 2) : cur.a
+        floats.push(cur)
+        ctx.save()
+        ctx.translate(cur.x, cur.y)
+        ctx.rotate(cur.a)
+        ctx.translate(-cur.s / 2, -cur.s / 2)
+        ctx.drawImage(cur.img, 0, 0, cur.s, cur.s)
+        ctx.restore()
     }
     ctx.restore()
 }
@@ -198,21 +263,23 @@ function loop() {
         animationTime += dt
     }
     world.Step(dt, 10)
-    for (i = 0; i < bodies.length; i++) {
-        var body = bodies[i]
-        var element = elements[i]
-        var left = (body.m_position0.x)
-        var top = (body.m_position0.y)
-        var rot = body.m_rotation0
-        ctx.save()
-        ctx.translate(left, top)
-        ctx.rotate(rot)
-        ctx.translate(-45, -45)
-        ctx.drawImage(element.img, 0, 0)
-        ctx.restore()
+    if (animationTime < 4) {
+        for (i = 0; i < bodies.length; i++) {
+            var body = bodies[i]
+            var element = elements[i]
+            var left = (body.m_position0.x)
+            var top = (body.m_position0.y)
+            var rot = body.m_rotation0
+            ctx.save()
+            ctx.translate(left, top)
+            ctx.rotate(rot)
+            ctx.translate(-45, -45)
+            ctx.drawImage(element.img, 0, 0)
+            ctx.restore()
+        }
     }
     if (animationTime > 0) {
-        drawRing(animationTime)
+        drawRing(animationTime, dt)
     }
     return requestAnimationFrame(loop);
 }
